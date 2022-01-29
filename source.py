@@ -6,6 +6,12 @@ import spotipy                                              # Python wrapper for
 from spotipy.oauth2 import SpotifyOAuth                     # Allows acessing user data for spotify API
 import os                                                   # Used for setting environment variables
 import pandas as pd                                         # For wrangling data
+from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+
+load_dotenv()
 
 # Load the api key
 api_json = json.load(open("api-key.json"))
@@ -60,3 +66,17 @@ while tracks_count == 50:
 
 # The dataframe produced above will have duplicated artists so make a unique list
 artist_uri_unique = artist_uri_df["artist"].unique()
+
+cred = credentials.ApplicationDefault()
+firebase_admin.initialize_app(cred, {
+    'projectId': os.environ["GCP_PROJECT_ID"]
+})
+
+db = firestore.client()
+
+doc_ref = db.collection('users').document(os.environ["USER"])
+
+doc_ref.update({
+    'artists_uri': artist_uri_unique.tolist(),
+    'test': 'yes'
+})
