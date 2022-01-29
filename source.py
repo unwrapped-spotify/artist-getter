@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+from firebase_cache import FirestoreCacheHandler
 
 load_dotenv()
 
@@ -26,12 +27,32 @@ os.environ["SPOTIPY_REDIRECT_URI"] = api_json["redirect_uri"]
 # This scope is needed to read libraries
 scope = "user-library-read"
 
+
+cred = credentials.ApplicationDefault()
+
+firebase_admin.initialize_app(cred, {
+    'projectId': os.environ["GCP_PROJECT_ID"]
+})
+
+db = firestore.client()
+
+doc_ref = db.collection('users').document(os.environ["USER"])
+
 # Authenticate with the spotify API
-#spotify_client = spotipy.Spotify(auth_manager = SpotifyOAuth(scope = scope))
+spotify_client = spotipy.Spotify(
+    auth_manager = SpotifyOAuth(scope = scope, cache_handler = FirestoreCacheHandler(doc_ref)))
 
-print(SpotifyOAuth(scope = scope).get_cached_token())
+#print(SpotifyOAuth(scope = scope).get_cached_token())
 
-spotify_client = spotipy.Spotify(auth = SpotifyOAuth(scope = scope).get_cached_token()["access_token"])
+#print(SpotifyOAuth(
+#    scope = scope,
+#    cache_handler = FirestoreCacheHandler(
+#        os.environ["USER"], os.environ["GCP_PROJECT_ID"])).get_cached_token())
+
+##spotify_client = spotipy.Spotify(auth = SpotifyOAuth(
+##    scope = scope,
+##    cache_handler = FirestoreCacheHandler(
+##        os.environ["USER"], os.environ["GCP_PROJECT_ID"])).get_cached_token())
 
 # These variables are used to loop through the users library until the end is reached
 tracks_count = 50
@@ -66,15 +87,6 @@ while tracks_count == 50:
 
 # The dataframe produced above will have duplicated artists so make a unique list
 artist_uri_unique = artist_uri_df["artist"].unique()
-
-cred = credentials.ApplicationDefault()
-firebase_admin.initialize_app(cred, {
-    'projectId': os.environ["GCP_PROJECT_ID"]
-})
-
-db = firestore.client()
-
-doc_ref = db.collection('users').document(os.environ["USER"])
 
 doc_ref.update({
     'artists_uri': artist_uri_unique.tolist(),
