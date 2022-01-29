@@ -73,7 +73,7 @@ while tracks_count == 50:
             # Convert the uri to a data frame
             artist_single_uri_df = pd.DataFrame([artist_single_uri], columns = ["artist"])
             # Append the single artist to the full list
-            artist_uri_df = artist_uri_df.append(artist_single_uri_df)
+            artist_uri_df = pd.concat([artist_uri_df, artist_single_uri_df])
     # Increment i, this ensures the next 50 tracks are read in
     i += 1
 
