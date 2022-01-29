@@ -1,0 +1,4 @@
+spotipy
+firestore
+pandas
+python-dotenv

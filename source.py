@@ -14,14 +14,6 @@ from firebase_cache import FirestoreCacheHandler
 
 load_dotenv()
 
-# Load the api key
-api_json = json.load(open("api-key.json"))
-
-# Set environment variables as required by spotipy
-os.environ["SPOTIPY_CLIENT_ID"] = api_json["client_id"]
-os.environ["SPOTIPY_CLIENT_SECRET"] = api_json["client_secret"]
-os.environ["SPOTIPY_REDIRECT_URI"] = api_json["redirect_uri"]
-
 #### Get list of a users liked artists
 
 # This scope is needed to read libraries
